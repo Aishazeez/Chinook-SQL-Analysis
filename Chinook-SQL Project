@@ -1,0 +1,31 @@
+use chinook;
+-- Sale
+-- •	Which countries bring in the most revenue? (hint: group by country)
+SELECT Country, SUM(Total) AS Revenue FROM Customer JOIN Invoice USING(CustomerId)GROUP BY Country ORDER BY Revenue DESC;
+
+-- •	Who are the top-spending customers? (hint: group by customer, sort by total)
+SELECT FirstName, LastName, SUM(Total) AS TotalSpent FROM Customer JOIN Invoice USING(CustomerId) GROUP BY CustomerId 
+ORDER BY TotalSpent DESC;
+
+-- •	What's the monthly sales trend? (hint: group by month/year from invoice date)
+SELECT MONTH(InvoiceDate) AS Month,SUM(Total) AS Sales FROM Invoice GROUP BY MONTH(InvoiceDate) ORDER BY Month;
+
+-- •	Which employees have the highest sales? (hint: join employee → customer → invoice)
+SELECT e.FirstName, e.LastName, SUM(i.Total) AS Sales FROM Employee e JOIN Customer c ON e.EmployeeId = c.SupportRepId 
+JOIN Invoice i ON c.CustomerId = i.CustomerId GROUP BY e.EmployeeId ORDER BY Sales DESC;
+
+-- Marketing
+-- •	What are the best-selling tracks and artists? (hint: join tracks with invoice lines, sum quantity)
+SELECT t.Name, SUM(il.Quantity) AS Sold FROM Track t JOIN InvoiceLine il USING(TrackId) GROUP BY t.TrackId ORDER BY Sold DESC;
+
+-- •	Which genres perform best, and does it vary by country? (hint: join genre + invoice + customer)
+SELECT g.Name, SUM(il.Quantity) AS Sold FROM Genre g JOIN Track t USING(GenreId) JOIN InvoiceLine il USING(TrackId)
+GROUP BY g.GenreId ORDER BY Sold DESC;
+
+-- •	Which customers haven't purchased recently? (hint: compare latest invoice date to today)
+SELECT c.FirstName, c.LastName, MAX(i.InvoiceDate) AS LastPurchase FROM Customer c LEFT JOIN Invoice i USING(CustomerId)
+GROUP BY c.CustomerId ORDER BY LastPurchase;
+
+-- HR
+-- •	Map out who reports to whom among employees. (hint: the employee table has a manager column — join the table to itself)
+SELECT e.FirstName AS Employee,m.FirstName AS Manager FROM Employee e LEFT JOIN Employee m ON e.ReportsTo = m.EmployeeId;
